@@ -1,0 +1,108 @@
+name: Generate README assets
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Keep yesterday's cards in dist/ so a failed fetch never
+      # deletes them from the output branch (images stay up regardless)
+      - name: Restore previous SVGs
+        run: |
+          mkdir -p dist
+          git fetch origin output --depth=1 || true
+          for f in stats.svg streak.svg; do
+            if git show "origin/output:$f" > "dist/$f" 2>/dev/null && [ -s "dist/$f" ]; then
+              echo "restored $f"
+            else
+              rm -f "dist/$f"
+              echo "no previous $f"
+            fi
+          done
+
+      - name: Generate snake animation
+        uses: Platane/snk@v3
+        with:
+          github_user_name: BenBrahimMazen
+          outputs: |
+            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+
+      # Render the stats card by invoking github-readme-stats' own API
+      # handler directly (the public vercel.app instance returns 503 most
+      # of the time). Needs a PAT with public-repo read access — the
+      # built-in GITHUB_TOKEN is repo-scoped and gets FORBIDDEN on the
+      # stargazers GraphQL field of the user's other repositories.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Generate stats card
+        continue-on-error: true
+        env:
+          PAT_1: ${{ secrets.STATS_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          git clone --depth 1 https://github.com/anuraghazra/github-readme-stats /tmp/grs
+          cat > /tmp/grs/render.mjs <<'EOF'
+          import { writeFileSync } from "node:fs";
+          import stats from "./api/index.js";
+
+          const query = Object.fromEntries(new URLSearchParams({
+            username: "BenBrahimMazen",
+            show_icons: "true",
+            rank_icon: "github",
+            theme: "dark",
+            bg_color: "0a1220",
+            title_color: "2ea37a",
+            icon_color: "2ea37a",
+            text_color: "9fb0c9",
+            border_color: "1f3a5f",
+            hide_border: "false",
+          }));
+
+          let body = "";
+          const res = {
+            setHeader: () => {},
+            send: (b) => { body = b; },
+          };
+          await stats({ query }, res);
+
+          if (body.length < 200 || body.includes("Something went wrong")) {
+            console.error(body);
+            process.exit(1);
+          }
+          writeFileSync("stats.svg", body);
+          console.log("ok", body.length, "bytes");
+          EOF
+          cd /tmp/grs
+          npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+          node render.mjs
+          cp /tmp/grs/stats.svg "$GITHUB_WORKSPACE/dist/stats.svg"
+
+      # Public streak-stats instance — flaky over slow connections but
+      # fine from GitHub's runners, with retries + keep-previous fallback
+      - name: Generate streak card
+        continue-on-error: true
+        run: |
+          curl --fail --retry 5 --retry-delay 10 --retry-all-errors \
+            "https://streak-stats.demolab.com/?user=BenBrahimMazen&theme=dark&background=0a1220&stroke=1f3a5f&ring=2ea37a&fire=2ea37a&currStreakLabel=2ea37a&sideLabels=9fb0c9&dates=5c7191" \
+            -o dist/streak.svg \
+            || echo "::warning::streak card fetch failed, keeping previous version"
+
+      - name: Push to output branch
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
