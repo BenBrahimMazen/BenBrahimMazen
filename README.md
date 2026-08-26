@@ -28,13 +28,19 @@ I build ML systems that run in production — not notebooks that stay on GitHub.
 <div align="center">
 
 ![Python](https://img.shields.io/badge/Python-0a1220?style=for-the-badge&logo=python&logoColor=2EA37A)
+![Scikit-learn](https://img.shields.io/badge/Scikit--learn-0a1220?style=for-the-badge&logo=scikitlearn&logoColor=2EA37A)
 ![PyTorch](https://img.shields.io/badge/PyTorch-0a1220?style=for-the-badge&logo=pytorch&logoColor=2EA37A)
+![XGBoost](https://img.shields.io/badge/XGBoost-0a1220?style=for-the-badge&logo=xgboost&logoColor=2EA37A)
+![HuggingFace](https://img.shields.io/badge/Hugging_Face-0a1220?style=for-the-badge&logo=huggingface&logoColor=2EA37A)
 ![LangChain](https://img.shields.io/badge/LangChain-0a1220?style=for-the-badge&logo=langchain&logoColor=2EA37A)
+![LangGraph](https://img.shields.io/badge/LangGraph-0a1220?style=for-the-badge&logo=langgraph&logoColor=2EA37A)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0a1220?style=for-the-badge&logo=fastapi&logoColor=2EA37A)
+![Spring](https://img.shields.io/badge/Spring_Boot-0a1220?style=for-the-badge&logo=springboot&logoColor=2EA37A)
+![React](https://img.shields.io/badge/React-0a1220?style=for-the-badge&logo=react&logoColor=2EA37A)
 ![Docker](https://img.shields.io/badge/Docker-0a1220?style=for-the-badge&logo=docker&logoColor=2EA37A)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-0a1220?style=for-the-badge&logo=postgresql&logoColor=2EA37A)
 ![Kafka](https://img.shields.io/badge/Kafka-0a1220?style=for-the-badge&logo=apachekafka&logoColor=2EA37A)
-![Spring](https://img.shields.io/badge/Spring_Boot-0a1220?style=for-the-badge&logo=springboot&logoColor=2EA37A)
+![MLflow](https://img.shields.io/badge/MLflow-0a1220?style=for-the-badge&logo=mlflow&logoColor=2EA37A)
 
 </div>
 
